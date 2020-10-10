@@ -49,7 +49,11 @@ class Client:
         print(result)
 
     def download(self, remote_path, local_path):
-        pass
+        data = self.__send_msg__(f"READ {remote_path}")
+        if data.split(' ')[0] == 'ERROR':
+            return
+        datanode, addr = self.socket.accept()
+        recv_file(datanode, local_path)
 
     def rm(self, path):
         self.__send_msg__(f'REMOVE {path}')
@@ -70,17 +74,29 @@ def send_file(s, filepath):
     stat = lambda itr, filesize: int(itr * 1028 / filesize * 100)
     counter = 0
     l = f.read(1024)
-    prev_pecent = 0
+    prev_progr = 0
     while (l):
         s.send(l)
         counter += 1
         progress = stat(counter, filesize)
         progress = progress if progress < 100 else 100
-        if progress != prev_pecent:
-            prev_pecent = progress
+        if progress != prev_progr:
+            prev_progr = progress
         l = f.read(1024)
     f.close()
     s.close()
+
+
+def recv_file(sock, filepath):
+    recv = True
+    while recv:
+        data = sock.recv(1024)
+        if data:
+            with open(filepath, 'wb') as f:
+                f.write(data)
+        else:
+            sock.close()
+            recv = False
 
 
 if __name__ == '__main__':
