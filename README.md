@@ -1,5 +1,5 @@
-# Distributed Systems
-# Group Project 2: Distributed File System
+# Distributed Systems Group Project 2
+# Distributed File System
   Students: Kamil Shakirov, Nataliya Tupikina, Marina Ivanova (BS18)
 
 ## System Setup
