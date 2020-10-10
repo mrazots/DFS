@@ -1,4 +1,5 @@
 import socket
+import os
 
 
 class Client:
@@ -17,6 +18,7 @@ class Client:
         self.namenode.send(str.encode(msg))
         data = self.namenode.recv(1024).decode()
         print(f'{recv_label}: {data}')
+        return data
 
     def init_cluster(self):
         self.__send_msg__('INIT')
@@ -34,27 +36,54 @@ class Client:
         self.__send_msg__(f'REMOVEDIR {path}')
 
     def touch(self, filepath):
-        pass
+        self.__send_msg__(f'CREATE {filepath}')
 
     def upload(self, local_path, remote_path):
-        pass
+        data = self.__send_msg__(f"WRITE {remote_path} {os.path.getsize(local_path)}")
+        if data.split(' ')[0] == 'ERROR':
+            return
+        datanode, addr = self.socket.accept()
+        send_file(datanode, local_path)
+        datanode, _ = self.socket.accept()
+        result = datanode.recv(100)
+        print(result)
 
     def download(self, remote_path, local_path):
         pass
 
     def rm(self, path):
-        pass
+        self.__send_msg__(f'REMOVE {path}')
 
-    def get_fileinfo(self, path):
-        pass
+    def describe_file(self, path):
+        self.__send_msg__(f'FILEINFO {path}')
 
-    def cp(self, curr_path, dest_path):
-        pass
+    def cp(self, old_path, dest_path):
+        self.__send_msg__(f'COPY {old_path} {dest_path}')
 
-    def mv(self, curr_path, dest_path):
-        pass
+    def mv(self, old_path, dest_path):
+        self.__send_msg__(f'MOVE {old_path} {dest_path}')
+
+
+def send_file(s, filepath):
+    f = open(filepath, "rb")
+    filesize = os.path.getsize(filepath)
+    stat = lambda itr, filesize: int(itr * 1028 / filesize * 100)
+    counter = 0
+    l = f.read(1024)
+    prev_pecent = 0
+    while (l):
+        s.send(l)
+        counter += 1
+        progress = stat(counter, filesize)
+        progress = progress if progress < 100 else 100
+        if progress != prev_pecent:
+            prev_pecent = progress
+        l = f.read(1024)
+    f.close()
+    s.close()
 
 
 if __name__ == '__main__':
     c = Client()
     c.connect()
+    c.init_cluster()
