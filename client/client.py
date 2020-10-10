@@ -1,5 +1,6 @@
 import socket
 
+
 class Client:
     def __init__(self):
         self.namenode = None
@@ -12,47 +13,25 @@ class Client:
         self.namenode = socket.socket()
         self.namenode.connect((ip, port))
 
+    def __send_msg__(self, msg, recv_label="Status"):
+        self.namenode.send(str.encode(msg))
+        data = self.namenode.recv(1024).decode()
+        print(f'{recv_label}: {data}')
+
     def init_cluster(self):
-        msg = b'INIT'
-        self.namenode.send(msg)
-        data = self.namenode.recv(100)
-        print('FS size: ', data)
+        self.__send_msg__('INIT')
 
     def mkdir(self, path):
-        msg = f'MAKEDIR {path}'
-        self.namenode.send(str.encode(msg))
-        data = self.namenode.recv(1024).decode()
-        print('Status: {}'.format(data))
-        if data.split(' ')[0] == 'ERROR':
-            if len(data.split(' ')) > 1: print(data.split(' ')[1])
-            return
+        self.__send_msg__(f'MAKEDIR {path}')
 
     def lsdir(self, path):
-        msg = f'READDIR {path}'
-        self.namenode.send(str.encode(msg))
-        data = self.namenode.recv(1024).decode()
-        print('Status: {}'.format(data))
-        if data.split(' ')[0] == 'ERROR':
-            if len(data.split(' ')) > 1: print(data.split(' ')[1])
-            return
+        self.__send_msg__(f'READDIR {path}')
 
     def cd(self, path):
-        msg = f'OPENDIR {path}'
-        self.namenode.send(str.encode(msg))
-        data = self.namenode.recv(1024).decode()
-        print('Status: {}'.format(data))
-        if data.split(' ')[0] == 'ERROR':
-            if len(data.split(' ')) > 1: print(data.split(' ')[1])
-            return
+        self.__send_msg__(f'OPENDIR {path}')
 
     def rmdir(self, path):
-        msg = f'REMOVEDIR {path}'
-        self.namenode.send(str.encode(msg))
-        data = self.namenode.recv(1024).decode()
-        print('Status: {}'.format(data))
-        if data.split(' ')[0] == 'ERROR':
-            if len(data.split(' ')) > 1: print(data.split(' ')[1])
-            return
+        self.__send_msg__(f'REMOVEDIR {path}')
 
     def touch(self, filepath):
         pass
@@ -74,6 +53,7 @@ class Client:
 
     def mv(self, curr_path, dest_path):
         pass
+
 
 if __name__ == '__main__':
     c = Client()
