@@ -1,9 +1,16 @@
+import socket
+
 class Client:
     def __init__(self):
-        pass
+        self.namenode = None
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind(('', 7777))
+        self.socket.listen()
 
-    def connect(self, ip, port):
-        pass
+    def connect(self, ip='127.0.0.1', port="8888"):
+        self.namenode = socket.socket()
+        self.namenode.connect((ip, port))
 
     def init_cluster(self):
         pass
@@ -41,7 +48,6 @@ class Client:
     def mv(self, curr_path, dest_path):
         pass
 
-
-
 if __name__ == '__main__':
-   pass
+    c = Client()
+    c.connect()
