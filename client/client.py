@@ -13,19 +13,46 @@ class Client:
         self.namenode.connect((ip, port))
 
     def init_cluster(self):
-        pass
+        msg = b'INIT'
+        self.namenode.send(msg)
+        data = self.namenode.recv(100)
+        print('FS size: ', data)
 
     def mkdir(self, path):
-        pass
+        msg = f'MAKEDIR {path}'
+        self.namenode.send(str.encode(msg))
+        data = self.namenode.recv(1024).decode()
+        print('Status: {}'.format(data))
+        if data.split(' ')[0] == 'ERROR':
+            if len(data.split(' ')) > 1: print(data.split(' ')[1])
+            return
 
     def lsdir(self, path):
-        pass
+        msg = f'READDIR {path}'
+        self.namenode.send(str.encode(msg))
+        data = self.namenode.recv(1024).decode()
+        print('Status: {}'.format(data))
+        if data.split(' ')[0] == 'ERROR':
+            if len(data.split(' ')) > 1: print(data.split(' ')[1])
+            return
 
     def cd(self, path):
-        pass
+        msg = f'OPENDIR {path}'
+        self.namenode.send(str.encode(msg))
+        data = self.namenode.recv(1024).decode()
+        print('Status: {}'.format(data))
+        if data.split(' ')[0] == 'ERROR':
+            if len(data.split(' ')) > 1: print(data.split(' ')[1])
+            return
 
     def rmdir(self, path):
-        pass
+        msg = f'REMOVEDIR {path}'
+        self.namenode.send(str.encode(msg))
+        data = self.namenode.recv(1024).decode()
+        print('Status: {}'.format(data))
+        if data.split(' ')[0] == 'ERROR':
+            if len(data.split(' ')) > 1: print(data.split(' ')[1])
+            return
 
     def touch(self, filepath):
         pass
