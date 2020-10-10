@@ -10,7 +10,7 @@ class Client:
         self.socket.bind(('', 7777))
         self.socket.listen()
 
-    def connect(self, ip='127.0.0.1', port="8888"):
+    def connect(self, ip='127.0.0.1', port=8800):
         self.namenode = socket.socket()
         self.namenode.connect((ip, port))
 
