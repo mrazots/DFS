@@ -12,6 +12,7 @@ datanodes_number = 2
 sockets = {}
 connections = {}
 datanodes = []
+current_dir = "/"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind((HOST, PORT))
@@ -65,7 +66,7 @@ def delete_file(filename):
 def ls():
     pass
 
-def cd():
+def cd(path):
     pass
 
 def cp(src, dest):
