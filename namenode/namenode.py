@@ -4,13 +4,14 @@ import tqdm
 import os
 from time import sleep
 import sys
+import psycopg2
 
 HOST = "localhost"
 PORT = 8080
 BUFFER_SIZE = 1024
 datanodes_number = 2
 sockets = {}
-connections = {}
+conn = {}
 datanodes = []
 current_dir = "/"
 
@@ -25,7 +26,7 @@ while True:
         key = addr[0] + ":" + dn_port[0].decode()
         sockets[key] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sockets[key].connect((addr[0], int(dn_port[0].decode())))
-        connections[key] = connection
+        conn[key] = connection
         datanodes.append(key)
 
 
@@ -76,7 +77,16 @@ def mv(src, dest):
     pass
 
 def make_query(query, is_return):
-    pass
+    conn = psycopg2.connect(dbname='postgres', user='postgres', password='postgres', host='localhost', port="5432")
+    cursor = conn.cursor()
+    cursor.execute(query)
+    conn.commit()
+    if is_return:
+        result = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    if is_return:
+        return result
 
 
 def backup(addr):
@@ -85,12 +95,13 @@ def backup(addr):
 def close():
     for i in datanodes:
         sockets[i].close()
-        connections[i].close()
+        conn[i].close()
     sock.close()
     sock.detach()
 
 
 if __name__ == "__main__":
+    make_query("CREATE TABLE IF NOT EXISTS filesdb (filename Text, path TEXT, datanode1 TEXT, datanode2 TEXT, is_dir BOOLEAN, size TEXT);", False)
     while True:
         try:
             print(current_dir + ">", end=" ")
