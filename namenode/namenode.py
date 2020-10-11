@@ -90,6 +90,48 @@ def close():
 
 
 if __name__ == "__main__":
-    pass
+    while True:
+        try:
+            print(current_dir + ">", end=" ")
+            inpt = input()
+            commands = inpt.split(" ")
+            if commands[0] == "init":
+                initialize()
+            elif commands[0] == "cd":
+                cd(commands[1])
+            elif commands[0] == "ls":
+                ls()
+            elif commands[0] == "mkdir":
+                mkdir(commands[1], commands[2])
+                ls()
+            elif commands[0] == 'read':
+                read(commands[1])
+            elif commands[0] == "delete_dir":
+                delete_dir(commands[1])
+                ls()
+            elif commands[0] == "close":
+                close()
+                sys.exit(0)
+            elif commands[0] == "delete":
+                delete_file(commands[1])
+            elif commands[0] == 'create_file':
+                create_file(commands[1])
+            elif commands[0] == 'mv':
+                mv(commands[1], commands[2])
+            elif commands[0] == 'cp':
+                cp(commands[1], commands[2])
+            elif commands[0] == 'write':
+                write(commands[1], commands[2])
+            else:
+                print(commands[0] + ": Command not found")
+        except SystemExit:
+            print("Stop")
+            sys.exit(0)
+        except KeyboardInterrupt:
+            print("Stop")
+            sys.exit(0)
+        except:
+            print("Something went wrong")
+            continue
 
 
