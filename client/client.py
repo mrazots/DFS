@@ -69,9 +69,10 @@ class Client:
 
 
 def send_file(s, filepath):
+    def stat(itr, filesize):
+        return int(itr * 1028 / filesize * 100)
     f = open(filepath, "rb")
     filesize = os.path.getsize(filepath)
-    stat = lambda itr, filesize: int(itr * 1028 / filesize * 100)
     counter = 0
     l = f.read(1024)
     prev_progr = 0
@@ -99,7 +100,48 @@ def recv_file(sock, filepath):
             recv = False
 
 
+def opt(options, input):
+    tokens = input().split(' ')
+    while tokens[0] != 'exit':
+        option_eval(options, tokens)
+        tokens = input().split(' ')
+
+
+def option_eval(options, tokens):
+    if tokens[0] in options:
+        param = options[tokens[0]]
+        if len(tokens) != param[2]:
+            print(param[1])
+        else:
+            if param[2] == 1:
+                param[0]()
+            if param[2] == 2:
+                param[0](tokens[1])
+            if param[2] == 3:
+                param[0](tokens[1], tokens[2])
+
+
 if __name__ == '__main__':
     c = Client()
     c.connect()
     c.init_cluster()
+
+    options = {
+        'write': (c.upload, 'Usage: write /local_path /DFS_path', 3),
+        'read': (c.download, 'Usage: read /DFS_path /local_path', 3),
+        'remove': (c.rm, 'Usage: remove /DFS_path', 2),
+        'info': (c.describe_file, 'Usage: info /DFS_path', 2),
+        'copy': (c.cp, 'Usage: copy /DFS_path /DFS_dest_path', 3),
+        'dirread': (c.lsdir, 'Usage: dirread /DFS_path', 2),
+        'move': (c.mv, 'Usage: move /DFS_path /DFS_dest_path', 3),
+        'dirremove': (c.rmdir, 'Usage: dirremove /DFS_path', 2),
+        'dirmake': (c.mkdir, 'Usage: dirmake /DFS_path', 2),
+        'diropen': (c.cd, 'Usage: diropen /DFS_path', 2),
+        'init': (c.init_cluster, 'Usage: INIT', 1),
+        'create': (c.touch, 'Usage: create /DFS_path', 2)
+    }
+
+    tokens = input().split(' ')
+    while tokens[0] != 'exit':
+        opt(options, tokens)
+        tokens = input().split(' ')
