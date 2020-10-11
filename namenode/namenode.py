@@ -1,5 +1,31 @@
 import socket
+from threading import Thread
+import tqdm
+import os
+from time import sleep
 import sys
+
+HOST = "localhost"
+PORT = 8080
+BUFFER_SIZE = 1024
+datanodes_number = 2
+sockets = {}
+connections = {}
+datanodes = []
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((HOST, PORT))
+sock.listen(5)
+print('Listening..')
+while True:
+        connection, addr = sock.accept()
+        dn_port = connection.recvfrom(1024)
+        print("Node {}: connected". format(addr))
+        key = addr[0] + ":" + dn_port[0].decode()
+        sockets[key] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sockets[key].connect((addr[0], int(dn_port[0].decode())))
+        connections[key] = connection
+        datanodes.append(key)
 
 
 def initialize():
@@ -51,12 +77,16 @@ def mv(src, dest):
 def make_query(query, is_return):
     pass
 
-def close():
-    pass
-
 
 def backup(addr):
     pass
+
+def close():
+    for i in datanodes:
+        sockets[i].close()
+        connections[i].close()
+    sock.close()
+    sock.detach()
 
 
 if __name__ == "__main__":
