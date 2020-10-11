@@ -31,12 +31,12 @@ while True:
 
 
 def initialize():
-    pass
+    for i in sockets.values():
+        i.send(bytes("Initialization..", "utf-8"))
+    make_query("DROP TABLE IF EXISTS filesdb;", is_return=False)
+    make_query("CREATE TABLE filesdb (filename Text, path TEXT, datanode1 TEXT, datanode2 TEXT, is_dir BOOLEAN, size TEXT);", False)
 
 def check_nodes():
-    pass
-
-def send_message(socket, message):
     pass
 
 
@@ -94,6 +94,7 @@ def backup(addr):
 
 def close():
     for i in datanodes:
+        sockets[i].send(bytes("Closing..", "utf-8"))
         sockets[i].close()
         conn[i].close()
     sock.close()
@@ -101,7 +102,7 @@ def close():
 
 
 if __name__ == "__main__":
-    make_query("CREATE TABLE IF NOT EXISTS filesdb (filename Text, path TEXT, datanode1 TEXT, datanode2 TEXT, is_dir BOOLEAN, size TEXT);", False)
+    initialize()
     while True:
         try:
             print(current_dir + ">", end=" ")
